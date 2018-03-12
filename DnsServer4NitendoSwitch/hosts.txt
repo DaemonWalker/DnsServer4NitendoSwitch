@@ -1,0 +1,3 @@
+conntest.nintendowifi.net 172.16.18.64
+#10.0.0.86
+ctest.cdn.nintendo.net 172.16.18.64

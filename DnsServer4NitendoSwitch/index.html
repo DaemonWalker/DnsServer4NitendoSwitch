@@ -1,0 +1,146 @@
+<!doctype html>
+<!
+<html>
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="google" content="notranslate" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Go, Epona...</title>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+
+            html, body {
+                margin: 0;
+                width: 100%;
+                height: 100%;
+            }
+
+             body {
+                font-family: -apple-system,
+                            BlinkMacSystemFont,
+                            "Segoe UI",
+                            "Roboto",
+                            "Oxygen",
+                            "Ubuntu",
+                            "Cantarell",
+                            "Fira Sans",
+                            "Droid Sans",
+                            "Helvetica Neue",
+                            sans-serif;
+                font-weight: 100;
+                margin: 0;
+                -moz-text-size-adjust: 100%;
+                -webkit-text-size-adjust: 100%;
+                -ms-text-size-adjust: 100%;
+                overflow-y: hidden;
+                overflow-x: scroll; /* has to be scroll, not auto */
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .table {
+                display: table;
+                width: 100%;
+                height: 100%;
+            }
+
+            .table-row {
+                display: table-row;
+            }
+
+            .table-row--stretch {
+                height: 100%;
+            }
+
+            .table-cell {
+                display: table-cell;
+            }
+
+            .table-cell--stretch {
+                width: 100%;
+            }
+
+            .address-bar {
+                width: 100%;
+                height: 100%;
+                border-bottom: 1px solid #c2c2c2;
+            }
+
+            .address-bar__url {
+                width: 100%;
+                border: none;
+                padding: 10px;
+            }
+
+            .address-bar__go {
+                background: none;
+                border: none;
+                height: 100%;
+                width: 110px;
+            }
+
+            .disclaimer {
+                padding: 10px;
+                font-size: 75%;
+                border-bottom: 1px solid #1db4e2cc;
+            }
+
+            .webview {
+                width: 100%;
+                height: 100%;
+                border: 0;
+            }
+        </style>
+    </head>
+    <body class="notranslate">
+        <div class="table">
+            <div class="table-row">
+                <div class="table-cell">
+                    <form action="https://bing.com/search" class="address-bar" target="webview" onsubmit="navigate(event);">
+                        <div class="table">
+                            <div class="table-row">
+                                <div class="table-cell table-cell--stretch">
+                                    <input type="text" value="" id="url" placeholder="Where should we go, Link?" name="q" class="address-bar__url" />
+                                </div>
+                                <div class="table-cell">
+                                    <input type="submit" value="Go, Epona!" class="address-bar__go" />
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="table-row">
+                <div class="disclaimer">
+                    某些网站无法通过嵌入的页面直接浏览。 <a href="#" id="external-link">点击这里</a> 可以通过新窗口打开它（假如你发现无法直接浏览的话）。
+                </div>
+            </div>
+            <div class="table-row table-row--stretch">
+                <div class="table-cell">
+                    <iframe id="webview" name="webview" class="webview" src="https://bing.com"></iframe>
+                </div>
+            </div>
+        </div>
+        <script>
+            function navigate(event) {
+                var url = document.getElementById('url').value.toLowerCase().replace(/\s/g,'');
+
+                if (url.indexOf('.') === -1 ) {
+                    // no domain so just use google
+                    return;
+                } else {
+                    event.preventDefault();
+                    // no protocol specified so lets add one
+                    if (url.substr(0,4).indexOf('http') === -1) {
+                        url = 'http://' + url;
+                    }
+                    document.getElementById('webview').src = url;
+                    document.getElementById('external-link').href = url;
+                    document.getElementById('url').value = url;
+                }
+            }
+        </script>
+    </body>
+</html>

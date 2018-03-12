@@ -1,5 +1,9 @@
 ﻿using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.FileProviders;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,15 +17,59 @@ namespace DnsServer4NitendoSwitch
     {
         static void Main(string[] args)
         {
-            DNSServerHelper server = null;
-            try
+            var mode = "-s";
+            if (args.Length != 0)
             {
-                server = new DNSServerHelper();
+                mode = args[0].ToLower();
             }
-            catch (Exception e)
+            if (mode.Contains("s"))
             {
-                Console.WriteLine(e.Message);
+                DNSServerHelper server = null;
+                try
+                {
+                    server = new DNSServerHelper();
+                    server.Run();
+                    Console.Write("按回车键停止服务...");
+                    Console.ReadLine();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
             }
+            else
+            {
+                Console.WriteLine("测试服务端,输入空行结束");
+                var site = Console.ReadLine();
+                while (!string.IsNullOrWhiteSpace(site))
+                {
+                    TestClinet(site);
+                    site = Console.ReadLine();
+                }
+            }
+        }
+        static void TestClinet(string domainName)
+        {
+            var dnsClient = new DnsClient(IPAddress.Parse("127.0.0.1"), 10000);
+            var dnsMessage = dnsClient.Resolve(DomainName.Parse(domainName));
+            //若返回结果为空，或者存在错误，则该请求失败。
+            if (dnsMessage != null && !(dnsMessage.ReturnCode != ReturnCode.NoError && dnsMessage.ReturnCode != ReturnCode.NxDomain))
+            {
+                //循环遍历返回结果，将返回的IPV4记录添加到结果集List中。
+                foreach (DnsRecordBase dnsRecord in dnsMessage.AnswerRecords)
+                {
+                    ARecord aRecord = dnsRecord as ARecord;
+                    if (aRecord != null)
+                    {
+                        Console.WriteLine(aRecord.Address.ToString());
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+            }
+            Console.WriteLine("error");
         }
     }
     class DNSServerHelper
@@ -29,7 +77,7 @@ namespace DnsServer4NitendoSwitch
         /// <summary>
         /// 最大连接数
         /// </summary>
-        public int maxConnection { get; set; } = 10;
+        public int MaxConnection { get; set; } = 10;
 
         /// <summary>
         /// 设置DNS服务器地址
@@ -54,6 +102,7 @@ namespace DnsServer4NitendoSwitch
         {
             this.dnsClient = new DnsClient(IPAddress.Parse(dnsServer), 10000);
             domainDict = new Dictionary<string, string>();
+            DomainDictInit();
         }
 
         /// <summary>
@@ -61,7 +110,8 @@ namespace DnsServer4NitendoSwitch
         /// </summary>
         public void Run()
         {
-            DnsServer dnsServer = new DnsServer(maxConnection, maxConnection);
+            StartHttpServer();
+            DnsServer dnsServer = new DnsServer(MaxConnection, MaxConnection);
             dnsServer.QueryReceived += DnsServer_QueryReceived;
             dnsServer.Start();
         }
@@ -110,6 +160,10 @@ namespace DnsServer4NitendoSwitch
                 eventArgs.Response = message;
             });
         }
+
+        /// <summary>
+        /// 特殊对应规则初始化
+        /// </summary>
         private void DomainDictInit()
         {
             if (!File.Exists("hosts.txt"))
@@ -128,6 +182,7 @@ namespace DnsServer4NitendoSwitch
                 {
                     continue;
                 }
+                roleInfo[0] = roleInfo[0].ToLower();
                 if (!IPAddress.TryParse(roleInfo[1], out IPAddress temp))
                 {
                     throw new Exception($"IP地址{roleInfo[1]}格式有误，请进行检查");
@@ -138,7 +193,7 @@ namespace DnsServer4NitendoSwitch
                 }
                 else
                 {
-                    domainDict.Add(roleInfo[0], roleInfo[1]);
+                    domainDict.Add(roleInfo[0] + ".", roleInfo[1]);
                     Console.WriteLine($"域名 {roleInfo[0]} 解析到 {roleInfo[1]}");
                 }
             }
@@ -157,11 +212,18 @@ namespace DnsServer4NitendoSwitch
             {
                 targetIP = NormalSiteResolve(domainName);
             }
+            Console.WriteLine($"{domainName} => {targetIP}");
             return targetIP;
         }
 
+        /// <summary>
+        /// 特殊域名处理
+        /// </summary>
+        /// <param name="domainName"></param>
+        /// <returns></returns>
         private string SpecSiteResolve(string domainName)
         {
+            domainName = domainName.ToLower();
             if (domainDict.ContainsKey(domainName))
             {
                 return domainDict[domainName];
@@ -198,6 +260,40 @@ namespace DnsServer4NitendoSwitch
                 }
             }
             return null;
+        }
+        private void StartHttpServer()
+        {
+            Task.Run(() =>
+            {
+                string contentRoot = Directory.GetCurrentDirectory();
+                IFileProvider fileProvider = new PhysicalFileProvider(contentRoot);
+
+                new WebHostBuilder()
+                    .UseUrls("http://localhost", "http://172.16.18.64/")
+                    .UseContentRoot(contentRoot)
+                    .UseKestrel()
+                    .Configure(app => app
+                        .UseDefaultFiles()
+                        .UseDefaultFiles(new DefaultFilesOptions
+                        {
+                            RequestPath = "",
+                            FileProvider = fileProvider,
+                        })
+                        .UseStaticFiles()
+                        .UseStaticFiles(new StaticFileOptions
+                        {
+                            FileProvider = fileProvider,
+                            RequestPath = ""
+                        })
+                        .UseDirectoryBrowser()
+                       .UseDirectoryBrowser(new DirectoryBrowserOptions
+                       {
+                           FileProvider = fileProvider,
+                           RequestPath = ""
+                       }))
+                .Build()
+                .Run();
+            });
         }
     }
 }
