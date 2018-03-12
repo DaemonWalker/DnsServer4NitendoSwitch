@@ -37,7 +37,7 @@ namespace DnsServer4NitendoSwitch
                     server = new DNSServerHelper();
                     
                     server.Run();
-                    Console.Write("按回车键停止服务...");
+                    Console.WriteLine("按回车键停止服务...");
                     Console.ReadLine();
                 }
                 catch (Exception e)
@@ -269,27 +269,27 @@ namespace DnsServer4NitendoSwitch
                     .UseContentRoot(contentRoot)
                     .UseKestrel()
                     .Configure(app => app
-                        .UseDefaultFiles()
-                        .UseDefaultFiles(new DefaultFilesOptions
-                        {
-                            RequestPath = "",
-                            FileProvider = fileProvider,
-                        })
-                        .UseStaticFiles()
-                        .UseStaticFiles(new StaticFileOptions
-                        {
-                            FileProvider = fileProvider,
-                            RequestPath = ""
-                        })
-                        .UseDirectoryBrowser()
-                       .UseDirectoryBrowser(new DirectoryBrowserOptions
-                       {
-                           FileProvider = fileProvider,
-                           RequestPath = ""
-                       }))
-                .Build()
-                .Run();
-                Console.WriteLine("网站启动成功！");
+                    .UseDefaultFiles()
+                    .UseDefaultFiles(new DefaultFilesOptions
+                    {
+                        RequestPath = "",
+                        FileProvider = fileProvider,
+                    })
+                    .UseStaticFiles()
+                    .UseStaticFiles(new StaticFileOptions
+                    {
+                        FileProvider = fileProvider,
+                        RequestPath = ""
+                    })
+                    .UseDirectoryBrowser()
+                    .UseDirectoryBrowser(new DirectoryBrowserOptions
+                    {
+                        FileProvider = fileProvider,
+                        RequestPath = ""
+                    }))
+                    .Build()
+                    .Start();
+                Console.WriteLine("站点启动成功！");
             });
         }
     }
