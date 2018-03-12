@@ -182,7 +182,6 @@ namespace DnsServer4NitendoSwitch
                 {
                     if (query.Questions[0].RecordType == RecordType.A)
                     {
-                        //自定义解析规则，clientAddress即客户端的IP，dnsQuestion.Name即客户端请求的域名，Resolve为自定义的方法（代码不再贴出），返回解析后的ip，将其加入AnswerRecords中
                         foreach (DnsQuestion dnsQuestion in query.Questions)
                         {
                             string resolvedIp = Resolve(clientAddress.ToString(), dnsQuestion.Name.ToString());
@@ -208,7 +207,7 @@ namespace DnsServer4NitendoSwitch
             {
                 targetIP = NormalSiteResolve(domainName);
             }
-            Console.WriteLine($"{domainName} => {targetIP}");
+            Console.WriteLine($"{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")} from {clientAddress} {domainName} => {targetIP}");
             return targetIP;
         }
 
