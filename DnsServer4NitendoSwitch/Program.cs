@@ -265,7 +265,7 @@ namespace DnsServer4NitendoSwitch
                 IFileProvider fileProvider = new PhysicalFileProvider(contentRoot);
 
                 new WebHostBuilder()
-                    .UseUrls("http://localhost", $"http://{this.ServerAddress}")
+                    .UseUrls("http://*")
                     .UseContentRoot(contentRoot)
                     .UseKestrel()
                     .Configure(app => app
