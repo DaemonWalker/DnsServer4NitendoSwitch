@@ -289,6 +289,7 @@ namespace DnsServer4NitendoSwitch
                        }))
                 .Build()
                 .Run();
+                Console.WriteLine("网站启动成功！");
             });
         }
     }
