@@ -26,13 +26,13 @@ Switch只能用来玩游戏实在是太可惜了，然后用这个可以用来�
     1. domainName是域名
     2. ip是该域名要解析到的IP地址
     3. e.g:
-```JSON
-{
-  "domainName": "conntest.nintendowifi.net",
-  "ip": "172.16.18.64"
-}
-```
-这样你在地址栏里面访问淘宝就会跳转到京东去了。。。
+    ```JSON
+    {
+      "domainName": "conntest.nintendowifi.net",
+      "ip": "172.16.18.64"
+    }
+    ```
+    这样你在地址栏里面访问淘宝就会跳转到京东去了。。。
     4. 别忘了加逗号，除了最后一个之外的都要有逗号
 
 ## 我看不懂怎么办
