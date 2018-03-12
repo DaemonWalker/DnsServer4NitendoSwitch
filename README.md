@@ -9,8 +9,8 @@ Switch只能用来玩游戏实在是太可惜了，然后用这个可以用来�
 ## 食用方法
 ### 服务端
 1. [下载当前平台的Runtime](https://www.microsoft.com/net/download/dotnet-core/runtime-2.0.5)
-    1. [windows 64位](https://www.microsoft.com/net/download/thank-you/dotnet-runtime-2.0.5-windows-x64-installer)
-    2. [windows 32位](https://www.microsoft.com/net/download/thank-you/dotnet-runtime-2.0.5-windows-x86-installer)
+    1. [windows 64位](https://www.microsoft.com/net/download/thank-you/dotnet-runtime-2.0.5-windows-x64-installer)
+    2. [windows 32位](https://www.microsoft.com/net/download/thank-you/dotnet-runtime-2.0.5-windows-x86-installer)
     3. [mac os](https://www.microsoft.com/net/download/thank-you/dotnet-runtime-2.0.5-macos-x64-installer)
     4. linux直接点链接自己看吧
 2. 下载Relase里面的压缩包，解压
