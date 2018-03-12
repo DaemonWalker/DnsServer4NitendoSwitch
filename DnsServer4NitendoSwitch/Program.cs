@@ -3,6 +3,7 @@ using ARSoft.Tools.Net.Dns;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,12 @@ namespace DnsServer4NitendoSwitch
     {
         static void Main(string[] args)
         {
+            var builder = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json");
+
+            var configuration = builder.Build();
+
             var mode = "-s";
             if (args.Length != 0)
             {
@@ -28,6 +35,7 @@ namespace DnsServer4NitendoSwitch
                 try
                 {
                     server = new DNSServerHelper();
+                    
                     server.Run();
                     Console.Write("按回车键停止服务...");
                     Console.ReadLine();
@@ -96,13 +104,36 @@ namespace DnsServer4NitendoSwitch
         }
 
         /// <summary>
+        /// 服务器IP地址
+        /// </summary>
+        public string ServerAddress { get; set; }
+
+        /// <summary>
         /// 构造函数
         /// </summary>
         public DNSServerHelper()
         {
-            this.dnsClient = new DnsClient(IPAddress.Parse(dnsServer), 10000);
-            domainDict = new Dictionary<string, string>();
-            DomainDictInit();
+            var builder = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json");
+
+            var configuration = builder.Build();
+            DomainDict = new Dictionary<string, string>();
+
+            this.DnsServer = configuration["DNSServer"];
+            this.ServerAddress = configuration["hostAddress"];
+            int index = 0;
+            while (configuration[$"customDNS:{index}:domainName"] != null)
+            {
+                this.DomainDict.Add(
+                    configuration[$"customDNS:{index}:domainName"] + ".",
+                    configuration[$"customDNS:{index}:ip"]);
+                index++;
+            }
+            foreach (var kv in this.DomainDict)
+            {
+                Console.WriteLine($"set {kv.Key} to {kv.Value}");
+            }
         }
 
         /// <summary>
@@ -117,16 +148,19 @@ namespace DnsServer4NitendoSwitch
         }
 
         /// <summary>
-        /// 默认DNS服务器地址
-        /// </summary>
-        private string dnsServer = "202.96.199.133";
-
-        /// <summary>
         /// DNS地址请求
         /// </summary>
         private DnsClient dnsClient;
 
-        private Dictionary<string, string> domainDict;
+        /// <summary>
+        /// 默认DNS服务器地址
+        /// </summary>
+        private string dnsServer;
+
+        /// <summary>
+        /// 自定义DNS跳转字典
+        /// </summary>
+        public Dictionary<string, string> DomainDict { get; set; }
 
         /// <summary>
         /// 消息队列处理
@@ -162,44 +196,6 @@ namespace DnsServer4NitendoSwitch
         }
 
         /// <summary>
-        /// 特殊对应规则初始化
-        /// </summary>
-        private void DomainDictInit()
-        {
-            if (!File.Exists("hosts.txt"))
-            {
-                throw new Exception("找不到解析规则文件 hosts.txt 请手动创建");
-            }
-            var roles = File.ReadLines("hosts.txt");
-            foreach (var role in roles)
-            {
-                if (role.StartsWith("#"))
-                {
-                    continue;
-                }
-                var roleInfo = role.Split(' ');
-                if (roleInfo.Length != 2)
-                {
-                    continue;
-                }
-                roleInfo[0] = roleInfo[0].ToLower();
-                if (!IPAddress.TryParse(roleInfo[1], out IPAddress temp))
-                {
-                    throw new Exception($"IP地址{roleInfo[1]}格式有误，请进行检查");
-                }
-                if (domainDict.ContainsKey(roleInfo[0]))
-                {
-                    throw new Exception($"域名{roleInfo[0]}出现重复，请检查");
-                }
-                else
-                {
-                    domainDict.Add(roleInfo[0] + ".", roleInfo[1]);
-                    Console.WriteLine($"域名 {roleInfo[0]} 解析到 {roleInfo[1]}");
-                }
-            }
-        }
-
-        /// <summary>
         /// 解析域名
         /// </summary>
         /// <param name="clientAddress"></param>
@@ -224,9 +220,9 @@ namespace DnsServer4NitendoSwitch
         private string SpecSiteResolve(string domainName)
         {
             domainName = domainName.ToLower();
-            if (domainDict.ContainsKey(domainName))
+            if (DomainDict.ContainsKey(domainName))
             {
-                return domainDict[domainName];
+                return DomainDict[domainName];
             }
             else
             {
@@ -269,7 +265,7 @@ namespace DnsServer4NitendoSwitch
                 IFileProvider fileProvider = new PhysicalFileProvider(contentRoot);
 
                 new WebHostBuilder()
-                    .UseUrls("http://localhost", "http://172.16.18.64/")
+                    .UseUrls("http://localhost", $"http://{this.ServerAddress}")
                     .UseContentRoot(contentRoot)
                     .UseKestrel()
                     .Configure(app => app
