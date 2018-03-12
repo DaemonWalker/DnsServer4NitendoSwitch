@@ -17,7 +17,7 @@ Switch只能用来玩游戏实在是太可惜了，然后用这个可以用来�
 2. 安装
 3. 下载Relase里面的压缩包，解压
 4. 修改appsettings.json，把 所有的 172.16.18.64 改成你服务器的IP，如果是家里搭建的，就用内网IP就行
-5. windows用户直接双击run.bat运行 跳过第四部
+5. windows用户直接双击run.bat运行 跳过第6步
 6. 在 CMD/Powershell/Terminal中切换到解压目录，然后输入 
 > dotnet DnsServer4NitendoSwitch.dll
 
@@ -41,4 +41,17 @@ Switch只能用来玩游戏实在是太可惜了，然后用这个可以用来�
 
 ## 我看不懂怎么办
 我在 120.27.214.79 上面建了个临时的，想尝尝鲜的把DNS改成这个就好<br>
-当然不保证我那天心情不好就给关了~
+当然不保证我哪天心情不好就给关了~
+
+## 注意事项
+1. 运行成功会显示类似于
+```
+set conntest.nintendowifi.net. to 172.16.18.64
+set ctest.cdn.nintendo.net. to 172.16.18.64
+按回车键停止服务...
+站点启动成功！
+```
+如果过了20秒还没有显示站点启动成功，请检查一下机器的80端口是不是被占用了
+
+2. 现在还无法处理iis那种多个域名共享一个端口的情况，如果运行这个程序之后，iis 80端口的绑定主机头将失效。<br>
+PS：不是代码的原因，我在代码里面之绑定 www.daemonwow.com 然后访问 stephaine.daemonwow.com 发现并没有什么卵用。。。
