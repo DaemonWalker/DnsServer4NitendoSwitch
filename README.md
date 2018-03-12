@@ -25,8 +25,8 @@ Switch只能用来玩游戏实在是太可惜了，然后用这个可以用来�
 3. customDNS是自定义DNS块
     1. domainName是域名
     2. ip是该域名要解析到的IP地址
-    3. 别忘了加逗号，除了最后一个之外的都要有逗号
-    4. e.g:
+    3. 别忘了加逗号，除了最后一个之外的都要有逗号
+    4. e.g:
     ```JSON
     {
       "domainName": "conntest.nintendowifi.net",
