@@ -20,6 +20,7 @@ Switch只能用来玩游戏实在是太可惜了，然后用这个可以用来�
 5. windows用户直接双击run.bat运行 跳过第四部
 6. 在 CMD/Powershell/Terminal中切换到解压目录，然后输入 
 > dotnet DnsServer4NitendoSwitch.dll
+
 即可运行
 
 ### Switch
